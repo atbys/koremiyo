@@ -2,8 +2,13 @@
 
 <h3>koremiyo!!</h3>
 <br>
-<h1>{{.movie_title}}</h1>
+<h1><a href="{{.link}}">{{.movie_title}}</a></h1>
 <br>
-<!-- <a href="{{.link}}">Filmarks</a> -->
+<h3>{{.movie_rate}}</h3>
 
+<ul>
+    {{range .reviews}}
+    <li>{{.}}</li>
+    {{end}}
+</ul>
 {{ template "footer.html" .}}

@@ -23,10 +23,10 @@ func (mrep *MovieRepository) FindById(id int) (*domain.Movie, error) {
 	movie := &domain.Movie{
 		Id:       id,
 		Title:    getMovieTitle(doc),
-		Rate:     0.0,
+		Rate:     getMovieRate(doc),
 		Abstruct: "TODO",
-		FLink:    "TODO",
-		Reviews:  []string{"A", "B"},
+		FLink:    targetURL,
+		Reviews:  GetMovieReviews(doc),
 	}
 
 	return movie, err
@@ -35,6 +35,21 @@ func (mrep *MovieRepository) FindById(id int) (*domain.Movie, error) {
 func getMovieTitle(doc Document) string {
 	movie_titile := doc.Find("div.p-content-detail__main > h2 > span").Text()
 	return movie_titile
+}
+
+func getMovieRate(doc Document) float64 {
+	movie_rate := doc.Find("div.p-content-detail-state > div > div > div.c-rating__score").Text()
+	rate, _ := strconv.ParseFloat(movie_rate, 32)
+	return rate
+}
+
+func GetMovieReviews(doc Document) []string {
+	movie_reviews_raw := doc.FindAll("body > div.l-main > div.p-content-detail > div.p-content-detail__foot > div.p-main-area.p-timeline > div.p-mark > div.p-mark__review")
+	var movie_reviews []string
+	for _, sel := range movie_reviews_raw {
+		movie_reviews = append(movie_reviews, sel.Text())
+	}
+	return movie_reviews
 }
 
 func (mrep *MovieRepository) FindByUserId(userId string) ([]int, error) {

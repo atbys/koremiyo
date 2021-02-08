@@ -47,6 +47,9 @@ func (s *Server) showRandomFromClip(ctrl *controller.MovieController) gin.Handle
 		ctx.HTML(res_code, "movie.html", gin.H{
 			"title":       "kore",
 			"movie_title": res_data.Content["movie_title"],
+			"movie_rate":  res_data.Content["movie_rate"],
+			"reviews":     res_data.Movie.Reviews,
+			"link":        res_data.Content["link"],
 		})
 	}
 }
