@@ -41,11 +41,21 @@ func (ssel GoquerySelection) Find(sel string) scraper.Selection {
 	return returnSel
 }
 
-func (ssel GoquerySelection) Text() string {
-	return ssel.Selection.Text()
+func (gsel GoquerySelection) Text() string {
+	return gsel.Selection.Text()
 }
 
-// func (gsel GoquerySelection) Each(f func(int, scraper.Selection)) scraper.Selection {
-// 	res := gsel.Each(f)
-// 	return res
-// }
+func (gsel GoquerySelection) FindAll(sel_name string) []scraper.Selection {
+	var sels []scraper.Selection
+	base := gsel.Selection.Find(sel_name)
+	base.Each(func(i int, sel *goquery.Selection) {
+		tmp := &GoquerySelection{Selection: sel}
+		sels = append(sels, tmp)
+	})
+
+	return sels
+}
+
+func (gsel GoquerySelection) Attr(attrName string) (string, bool) {
+	return gsel.Selection.Attr(attrName)
+}

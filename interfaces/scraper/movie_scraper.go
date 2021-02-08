@@ -9,8 +9,8 @@ type Document interface {
 }
 
 type Selection interface {
-	// Each(func(int, Selection)) Selection
 	Find(string) Selection
+	FindAll(string) []Selection
 	Text() string
-	// Attr(string) (string, bool)
+	Attr(string) (string, bool)
 }

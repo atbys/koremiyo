@@ -2,6 +2,7 @@ package scraper
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/atbys/koremiyo/domain"
 )
@@ -36,34 +37,34 @@ func getMovieTitle(doc Document) string {
 	return movie_titile
 }
 
-// func (mrep *MovieRepository) FindByUserId(userId string) ([]string, error) {
-// 	page := 1
-// 	targetURL := baseURL + "/users/" + userId + "/clips" + "?page=" + strconv.Itoa(page)
-// 	doc, err := mrep.GetPage(targetURL)
-// 	numOfClips := getNumOfClips(doc)
-// 	var ids []string
+func (mrep *MovieRepository) FindByUserId(userId string) ([]int, error) {
+	page := 1
+	targetURL := baseURL + "/users/" + userId + "/clips" + "?page=" + strconv.Itoa(page)
+	doc, err := mrep.GetPage(targetURL)
+	numOfClips := getNumOfClips(doc)
+	var ids []int
 
-// 	for numOfClips > 0 {
-// 		clipCountInPage := 0
-// 		res := doc.Find("body > div.l-main > div.p-content > div.p-contents-grid > div.c-content-item > a")
-// 		res.Each(func(i int, sel Selection) {
-// 			l, _ := sel.Attr("href")
-// 			tmp := strings.Split(l, "/")
-// 			id := tmp[len(tmp)-1]
-// 			ids = append(ids, id)
-// 			clipCountInPage += 1
-// 		})
-// 		numOfClips -= clipCountInPage
-// 		page += 1
-// 		targetURL := baseURL + "/users/" + userId + "/clips" + "?page=" + strconv.Itoa(page)
-// 		doc, err = mrep.GetPage(targetURL)
-// 		if err != nil {
-// 			panic(err)
-// 		}
-// 	}
+	for numOfClips > 0 {
+		clipCountInPage := 0
+		res := doc.FindAll("body > div.l-main > div.p-content > div.p-contents-grid > div.c-content-item > a")
+		for _, sel := range res {
+			l, _ := sel.Attr("href")
+			tmp := strings.Split(l, "/")
+			id, _ := strconv.Atoi(tmp[len(tmp)-1])
+			ids = append(ids, id)
+			clipCountInPage += 1
+		}
+		numOfClips -= clipCountInPage
+		page += 1
+		targetURL := baseURL + "/users/" + userId + "/clips" + "?page=" + strconv.Itoa(page)
+		doc, err = mrep.GetPage(targetURL)
+		if err != nil {
+			panic(err)
+		}
+	}
 
-// 	return ids, err
-// }
+	return ids, err
+}
 
 func getNumOfClips(doc Document) int {
 	numOfClips_str := doc.Find("body > div.l-main > div.p-users-navi > div > ul > li.p-users-navi__item.p-users-navi__item--clips.is-active > div > span.p-users-navi__count").Text()

@@ -53,8 +53,9 @@ func (interactor *MovieInteractor) GetRandom() (*OutputData, error) {
 	return interactor.MovieOutputPort.ShowMovieInfo(movie)
 }
 
-func (interactor *MovieInteractor) GetRandomFromClips(user_id string) (*OutputData, error) {
-	movie := &domain.Movie{}
-
+func (interactor *MovieInteractor) GetRandomFromClips(userId string) (*OutputData, error) {
+	ids, _ := interactor.MovieRepository.FindByUserId(userId)
+	randId := ids[randInt(len(ids))]
+	movie, _ := interactor.MovieRepository.FindById(randId)
 	return interactor.MovieOutputPort.ShowMovieInfo(movie)
 }

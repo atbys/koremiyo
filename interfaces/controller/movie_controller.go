@@ -35,3 +35,8 @@ func (controller *MovieController) Random() (int, *usecase.OutputData) {
 	// error handling
 	return http.StatusOK, content
 }
+
+func (controller *MovieController) RandomClip(userId string) (int, *usecase.OutputData) {
+	content, _ := controller.Interactor.GetRandomFromClips(userId)
+	return http.StatusOK, content
+}
