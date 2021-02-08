@@ -23,24 +23,29 @@ func (scraper Scraper) GetPage(url string) (scraper.Document, error) {
 	if err != nil {
 		panic(err)
 	}
-	doc := new(ScrapedSelection)
+	doc := new(GoquerySelection)
 	doc.Selection = result.Selection
 	return doc, err
 }
 
-type ScrapedSelection struct {
+type GoquerySelection struct {
 	Selection *goquery.Selection
 }
 
-func (ssel ScrapedSelection) Find(sel string) scraper.Selection {
+func (ssel GoquerySelection) Find(sel string) scraper.Selection {
 	resultSel := ssel.Selection.Find(sel)
-	returnSel := new(ScrapedSelection)
+	returnSel := new(GoquerySelection)
 	returnSel.Selection = resultSel
 	//*goquery.Find()は*goquery.Selectionを返すため，このメソッドの返り値の型と合わない
 	//scraper.Selectionに合わせたScrapedSelectionの型にして返している
 	return returnSel
 }
 
-func (ssel ScrapedSelection) Text() string {
+func (ssel GoquerySelection) Text() string {
 	return ssel.Selection.Text()
 }
+
+// func (gsel GoquerySelection) Each(f func(int, scraper.Selection)) scraper.Selection {
+// 	res := gsel.Each(f)
+// 	return res
+// }

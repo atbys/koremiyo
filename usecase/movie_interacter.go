@@ -47,8 +47,14 @@ func randInt(max int) int {
 	return rand.Intn(max)
 }
 
-func (interactor *MovieInteractor) RandomSelect() (*domain.Movie, error) {
+func (interactor *MovieInteractor) GetRandom() (*OutputData, error) {
 	randId := randInt(allMovieNum)
-	movie, err := interactor.MovieRepository.FindById(randId)
-	return movie, err
+	movie, _ := interactor.MovieRepository.FindById(randId)
+	return interactor.MovieOutputPort.ShowMovieInfo(movie)
+}
+
+func (interactor *MovieInteractor) GetRandomFromClips(user_id string) (*OutputData, error) {
+	movie := &domain.Movie{}
+
+	return interactor.MovieOutputPort.ShowMovieInfo(movie)
 }

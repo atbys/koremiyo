@@ -15,9 +15,12 @@ func NewHTTPPresenter() *HTTPPresenter {
 
 //HTMLで表示するデータ構築をここで行う
 func (p *HTTPPresenter) ShowMovieInfo(movie *domain.Movie) (*usecase.OutputData, error) {
-	res := &usecase.OutputData{}
-	res.Movie = movie
+	res := &usecase.OutputData{
+		Movie:   movie,
+		Content: make(map[string]string),
+	}
 	//データをいい感じに編集したいときはここに書いたりする
+	res.Content["movie_title"] = movie.Title
 	return res, nil
 }
 

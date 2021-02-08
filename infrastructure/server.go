@@ -32,8 +32,11 @@ func (s *Server) showIndex(ctrl *controller.MovieController) gin.HandlerFunc {
 
 func (s *Server) showRandom(ctrl *controller.MovieController) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		res_code, _ := ctrl.Index()
-		ctx.HTML(res_code, "index.html", gin.H{})
+		res_code, res_data := ctrl.Random()
+		ctx.HTML(res_code, "movie.html", gin.H{
+			"title":       "kore",
+			"movie_title": res_data.Content["movie_title"],
+		})
 	}
 }
 
