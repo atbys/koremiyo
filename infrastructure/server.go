@@ -2,6 +2,7 @@ package infrastructure
 
 import (
 	"os"
+	"strconv"
 
 	"github.com/atbys/koremiyo/interfaces/controller"
 	"github.com/gin-gonic/gin"
@@ -54,14 +55,28 @@ func (s *Server) showRandomFromClip(ctrl *controller.MovieController) gin.Handle
 	}
 }
 
+func (s *Server) showUser(ctrl *controller.UserController) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		id, _ := strconv.Atoi(ctx.Param("id"))
+		code, data := ctrl.Show(id)
+		ctx.HTML(code, "user_info.html", gin.H{
+			"title":     "user",
+			"user_name": data.User.ScreenName,
+			"user_fid":  data.User.FilmarksID,
+		})
+	}
+}
 func (s *Server) SetRouter() {
 	movieController := controller.NewMovieController(NewScraper())
+	userController := controller.NewUserController(NewSqlHandler())
+
 	gopath := os.Getenv("GOPATH")
 	s.Engine.LoadHTMLGlob(gopath + "/src/github.com/atbys/koremiyo/infrastructure/resource/template/*")
 
 	s.Engine.GET("/", s.showIndex(movieController))
 	s.Engine.GET("/random", s.showRandom(movieController))
 	s.Engine.GET("/clip", s.showRandomFromClip(movieController))
+	s.Engine.GET("/user/:id", s.showUser(userController))
 }
 
 func Run() {

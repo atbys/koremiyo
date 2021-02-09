@@ -7,14 +7,6 @@ import (
 	"github.com/atbys/koremiyo/usecase"
 )
 
-type HTTPPresenter struct {
-	usecase.MovieOutputPort
-}
-
-func NewHTTPPresenter() *HTTPPresenter {
-	return &HTTPPresenter{}
-}
-
 //HTMLで表示するデータ構築をここで行う
 func (p *HTTPPresenter) ShowMovieInfo(movie *domain.Movie) (*usecase.OutputData, error) {
 	res := &usecase.OutputData{
