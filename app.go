@@ -1,7 +1,7 @@
 package main
 
-import "github.com/atbys/koremiyo/infrastructure"
+import "github.com/atbys/koremiyo/infrastructure/server"
 
 func main() {
-	infrastructure.Run()
+	server.Run()
 }

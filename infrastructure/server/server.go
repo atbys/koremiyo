@@ -1,8 +1,9 @@
-package infrastructure
+package server
 
 import (
 	"os"
 
+	"github.com/atbys/koremiyo/infrastructure"
 	"github.com/atbys/koremiyo/interfaces/controller"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -38,8 +39,8 @@ func (s *Server) InitializeSession() {
 }
 
 func (s *Server) SetRouter() {
-	movieController := controller.NewMovieController(NewScraper())
-	userController := controller.NewUserController(NewSqlHandler())
+	movieController := controller.NewMovieController(infrastructure.NewScraper())
+	userController := controller.NewUserController(infrastructure.NewSqlHandler())
 
 	s.Engine.GET("/", s.showIndex(movieController))
 	s.Engine.GET("/random", s.showRandom(movieController))
