@@ -46,3 +46,27 @@ func (controller *UserController) Show(id int) (int, usecase.OutputUserData) {
 	}
 	return http.StatusOK, content
 }
+
+func (controller *UserController) Login(fid string, password string, session usecase.UserSession) int {
+	_, err := controller.Interactor.Login(fid, password, session)
+	if err != nil {
+		return http.StatusBadGateway
+	}
+	return http.StatusOK
+}
+
+func (controller *UserController) Logout(session usecase.UserSession) int {
+	err := controller.Interactor.Logout(session)
+	if err != nil {
+		return http.StatusBadGateway
+	}
+	return http.StatusOK
+}
+
+func (controller *UserController) SessionCheck(session usecase.UserSession) (bool, interface{}) {
+	userID, err := controller.Interactor.SessionCheck(session)
+	if err != nil {
+		return false, nil
+	}
+	return true, userID
+}

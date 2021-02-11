@@ -2,9 +2,10 @@ package infrastructure
 
 import (
 	"os"
-	"strconv"
 
 	"github.com/atbys/koremiyo/interfaces/controller"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,66 +22,41 @@ func NewServer() *Server {
 	return s
 }
 
-func (s *Server) showIndex(ctrl *controller.MovieController) gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		res_code, res_data := ctrl.Index()
-		ctx.HTML(res_code, "index.html", gin.H{ //res_dataを直接突っ込めないか
-			//レンダリング用の関数を作って，KeyとValueを取得するループで突っ込んでいこう
-			"title":     res_data.Content["page_title"],
-			"recommend": res_data.Content["movie_title"],
-		})
-	}
+func (s *Server) Initialize() {
+	gopath := os.Getenv("GOPATH")
+	s.Engine.LoadHTMLGlob(gopath + "/src/github.com/atbys/koremiyo/infrastructure/resource/template/*")
+
+	s.InitializeSession()
+	s.SetRouter()
 }
 
-func (s *Server) showRandom(ctrl *controller.MovieController) gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		res_code, res_data := ctrl.Random()
-		ctx.HTML(res_code, "movie.html", gin.H{
-			"title":       "kore",
-			"movie_title": res_data.Content["movie_title"],
-		})
-	}
+var CookieStore cookie.Store
+
+func (s *Server) InitializeSession() {
+	CookieStore = cookie.NewStore([]byte("secret"))
+	s.Engine.Use(sessions.Sessions("session", CookieStore))
 }
 
-func (s *Server) showRandomFromClip(ctrl *controller.MovieController) gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		res_code, res_data := ctrl.RandomClip("nekoneon") //XXX
-		ctx.HTML(res_code, "movie.html", gin.H{
-			"title":       "kore",
-			"movie_title": res_data.Content["movie_title"],
-			"movie_rate":  res_data.Content["movie_rate"],
-			"reviews":     res_data.Movie.Reviews,
-			"link":        res_data.Content["link"],
-		})
-	}
-}
-
-func (s *Server) showUser(ctrl *controller.UserController) gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		id, _ := strconv.Atoi(ctx.Param("id"))
-		code, data := ctrl.Show(id)
-		ctx.HTML(code, "user_info.html", gin.H{
-			"title":     "user",
-			"user_name": data.User.ScreenName,
-			"user_fid":  data.User.FilmarksID,
-		})
-	}
-}
 func (s *Server) SetRouter() {
 	movieController := controller.NewMovieController(NewScraper())
 	userController := controller.NewUserController(NewSqlHandler())
-
-	gopath := os.Getenv("GOPATH")
-	s.Engine.LoadHTMLGlob(gopath + "/src/github.com/atbys/koremiyo/infrastructure/resource/template/*")
 
 	s.Engine.GET("/", s.showIndex(movieController))
 	s.Engine.GET("/random", s.showRandom(movieController))
 	s.Engine.GET("/clip", s.showRandomFromClip(movieController))
 	s.Engine.GET("/user/:id", s.showUser(userController))
+	s.Engine.GET("/login", s.showLoginForm(userController))
+	s.Engine.POST("/login", s.Login(userController))
+	s.Engine.GET("logout", s.Logout(userController))
+	authGroup := s.Engine.Group("/")
+	authGroup.Use(s.SessionCheck(userController))
+	{
+		authGroup.GET("/loggedin", s.showLoggedin(userController))
+	}
 }
 
 func Run() {
 	s := NewServer()
-	s.SetRouter()
+	s.Initialize()
 	s.Engine.Run()
 }

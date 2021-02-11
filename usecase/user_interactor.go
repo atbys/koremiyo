@@ -1,7 +1,11 @@
 package usecase
 
 import (
+	"errors"
+	"log"
+
 	"github.com/atbys/koremiyo/domain"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserInteractor struct {
@@ -32,4 +36,51 @@ func (interactor *UserInteractor) Users() (user domain.Users, err error) {
 func (interactor *UserInteractor) UserById(id int) (OutputUserData, error) {
 	user, _ := interactor.UserRepository.FindById(id)
 	return interactor.UserOutputPort.ShowUserInfo(user)
+}
+
+func (interactor *UserInteractor) Login(fid string, password string, session UserSession) (*OutputUserData, error) {
+	user, _ := interactor.UserRepository.FindByFid(fid)
+	savedPassword := user.Password
+	inputPassword := password
+	// err := compareHashAndPassword(savedPassword, inputPassword)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	if savedPassword != inputPassword {
+		println(savedPassword)
+		println(inputPassword)
+		return nil, errors.New("invalid password")
+	}
+	session.Set("user_id", user.ID)
+	session.Save()
+
+	return nil, nil
+}
+
+func (interactor *UserInteractor) Logout(session UserSession) error {
+	session.Clear()
+	session.Save()
+
+	return nil
+}
+
+func (interactor *UserInteractor) SessionCheck(session UserSession) (interface{}, error) {
+	userID := session.Get("user_id")
+	if userID == nil {
+		log.Println("not logged in")
+		return 0, errors.New("not logged in")
+	} else {
+		return userID, nil
+	}
+}
+
+// PasswordEncrypt パスワードをhash化
+func passwordEncrypt(password string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	return string(hash), err
+}
+
+// CompareHashAndPassword hashと非hashパスワード比較
+func compareHashAndPassword(hash, password string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }

@@ -22,7 +22,7 @@ func (repo *UserRepository) Store(u domain.User) (id int, err error) {
 }
 
 func (repo *UserRepository) FindById(identifier int) (user domain.User, err error) {
-	row, err := repo.Query("SELECT id, screen_name, filmarks_id FROM users WHERE id = ?", identifier)
+	row, err := repo.Query("SELECT id, screen_name, filmarks_id, password FROM users WHERE id = ?", identifier)
 	defer row.Close()
 	if err != nil {
 		return
@@ -30,13 +30,36 @@ func (repo *UserRepository) FindById(identifier int) (user domain.User, err erro
 	var id int
 	var screenName string
 	var filmarksId string
+	var password string
 	row.Next()
-	if err = row.Scan(&id, &screenName, &filmarksId); err != nil {
+	if err = row.Scan(&id, &screenName, &filmarksId, &password); err != nil {
 		return
 	}
 	user.ID = id
 	user.ScreenName = screenName
 	user.FilmarksID = filmarksId
+	user.Password = password
+	return
+}
+
+func (repo *UserRepository) FindByFid(fid string) (user domain.User, err error) {
+	row, err := repo.Query("SELECT id, screen_name, filmarks_id, password FROM users WHERE filmarks_id = ?", fid)
+	defer row.Close()
+	if err != nil {
+		return
+	}
+	var id int
+	var screenName string
+	var filmarksId string
+	var password string
+	row.Next()
+	if err = row.Scan(&id, &screenName, &filmarksId, &password); err != nil {
+		return
+	}
+	user.ID = id
+	user.ScreenName = screenName
+	user.FilmarksID = filmarksId
+	user.Password = password
 	return
 }
 
