@@ -42,6 +42,24 @@ func (repo *UserRepository) FindById(identifier int) (user domain.User, err erro
 	return
 }
 
+func (repo *UserRepository) ListFriends(id int) ([]int, error) {
+	row, err := repo.Query("SELECT friend_id FROM friends WHERE user_id = ?", id)
+	defer row.Close()
+	if err != nil {
+		return nil, err
+	}
+	var ids []int
+	var friendID int
+	for row.Next() {
+		if err = row.Scan(&friendID); err != nil {
+			return nil, err
+		}
+		ids = append(ids, friendID)
+	}
+
+	return ids, nil
+}
+
 func (repo *UserRepository) FindByFid(fid string) (user domain.User, err error) {
 	row, err := repo.Query("SELECT id, screen_name, filmarks_id, password FROM users WHERE filmarks_id = ?", fid)
 	defer row.Close()

@@ -49,10 +49,12 @@ func (s *Server) SetRouter() {
 	s.Engine.GET("/login", s.showLoginForm(userController))
 	s.Engine.POST("/login", s.Login(userController))
 	s.Engine.GET("logout", s.Logout(userController))
+
 	authGroup := s.Engine.Group("/")
 	authGroup.Use(s.SessionCheck(userController))
 	{
 		authGroup.GET("/loggedin", s.showLoggedin(userController))
+		authGroup.GET("/friends", s.showFriends(userController))
 	}
 }
 

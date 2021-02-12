@@ -38,6 +38,19 @@ func (interactor *UserInteractor) UserById(id int) (OutputUserData, error) {
 	return interactor.UserOutputPort.ShowUserInfo(user)
 }
 
+func (interactor *UserInteractor) GetFriends(id int) ([]domain.User, error) {
+	friendIDs, err := interactor.UserRepository.ListFriends(id)
+	if err != nil {
+		return nil, err
+	}
+	var friends []domain.User
+	for _, userID := range friendIDs {
+		user, _ := interactor.UserRepository.FindById(userID)
+		friends = append(friends, user)
+	}
+	return friends, nil
+}
+
 func (interactor *UserInteractor) Login(fid string, password string, session UserSession) (*OutputUserData, error) {
 	user, _ := interactor.UserRepository.FindByFid(fid)
 	savedPassword := user.Password

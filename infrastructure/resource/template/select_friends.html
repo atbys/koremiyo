@@ -1,0 +1,9 @@
+{{template "header.html" .}}
+<h1>一緒に見る友達を選択</h1>
+<ul>
+    {{range .friends}}
+    <li>{{.ScreenName}}</li>
+    {{end}}
+</ul>
+
+{{template "footer.html" .}}

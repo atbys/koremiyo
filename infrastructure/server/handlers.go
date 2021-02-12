@@ -1,6 +1,7 @@
 package server
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
@@ -84,5 +85,18 @@ func (s *Server) Logout(ctrl *controller.UserController) gin.HandlerFunc {
 func (s *Server) showLoggedin(ctrl *controller.UserController) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		ctx.HTML(http.StatusOK, "loggedin.html", gin.H{})
+	}
+}
+
+func (s *Server) showFriends(ctrl *controller.UserController) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		v, _ := ctx.Get("user_id")
+		userID := v.(int)
+		log.Printf("[+] Got user_id is %d\n", userID)
+		code, users := ctrl.SelectFriend(userID)
+
+		ctx.HTML(code, "select_friends.html", gin.H{
+			"friends": users,
+		})
 	}
 }

@@ -47,6 +47,14 @@ func (controller *UserController) Show(id int) (int, usecase.OutputUserData) {
 	return http.StatusOK, content
 }
 
+func (controller *UserController) SelectFriend(id int) (int, []domain.User) {
+	users, err := controller.Interactor.GetFriends(id)
+	if err != nil {
+		return http.StatusBadGateway, nil
+	}
+	return http.StatusOK, users
+}
+
 func (controller *UserController) Login(fid string, password string, session usecase.UserSession) int {
 	_, err := controller.Interactor.Login(fid, password, session)
 	if err != nil {
