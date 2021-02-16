@@ -44,6 +44,23 @@ func (s *Server) showRandomFromClip(ctrl *controller.MovieController) gin.Handle
 	}
 }
 
+func (s *Server) showMutualClip(ctrl *controller.MovieController) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ids := ctx.PostFormArray("filmarks_id")
+		for _, id := range ids {
+			println(id)
+		}
+		code, data := ctrl.MutualClip(ids)
+		ctx.HTML(code, "movie.html", gin.H{
+			"title":       "kore",
+			"movie_title": data.Movie.Title,
+			"movie_rate":  data.Content["movie_rate"],
+			"reviews":     data.Movie.Reviews,
+			"link":        data.Content["link"],
+		})
+	}
+}
+
 func (s *Server) showUser(ctrl *controller.UserController) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, _ := strconv.Atoi(ctx.Param("id"))

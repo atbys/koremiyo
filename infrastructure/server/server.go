@@ -54,7 +54,12 @@ func (s *Server) SetRouter() {
 	authGroup.Use(s.SessionCheck(userController))
 	{
 		authGroup.GET("/loggedin", s.showLoggedin(userController))
-		authGroup.GET("/friends", s.showFriends(userController))
+		withFriends := authGroup.Group("/with")
+		{
+			withFriends.GET("/choose", s.showFriends(userController))
+			withFriends.POST("/random", s.showMutualClip(movieController))
+		}
+
 	}
 }
 
