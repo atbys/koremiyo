@@ -11,4 +11,8 @@
     <li>{{.}}</li>
     {{end}}
 </ul>
+<form action="/with/random" method="post">
+    <input type="hidden" name="cache" value={{.CacheID}}>
+    <input type="submit" value="選びなおす">
+</form>
 {{ template "footer.html" .}}

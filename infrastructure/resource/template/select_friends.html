@@ -5,6 +5,7 @@
     {{range .friends}}
     <h3><input type="checkbox" name="filmarks_id" value={{.FilmarksID}}>{{.ScreenName}}</h3>
     {{end}}
+    <input type="hidden" name="cache", value="-1">
     <input type="submit" value="miru">
 </form>
 

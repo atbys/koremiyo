@@ -39,7 +39,7 @@ func (s *Server) InitializeSession() {
 }
 
 func (s *Server) SetRouter() {
-	movieController := controller.NewMovieController(infrastructure.NewScraper())
+	movieController := controller.NewMovieController(infrastructure.NewScraper(), infrastructure.NewCacher())
 	userController := controller.NewUserController(infrastructure.NewSqlHandler())
 
 	s.Engine.GET("/", s.showIndex(movieController))

@@ -9,8 +9,9 @@ import (
 )
 
 type MovieInteractor struct {
-	MovieRepository MovieRepository
-	MovieOutputPort MovieOutputPort
+	MovieRepository  MovieRepository
+	MovieOutputPort  MovieOutputPort
+	MutualMovieCache MutualMovieCache
 }
 
 type MovieOutputPort interface {
@@ -19,6 +20,7 @@ type MovieOutputPort interface {
 }
 
 type OutputData struct {
+	CacheID int
 	Config  *OutputConfig
 	Movie   *domain.Movie
 	Content map[string]string
@@ -61,26 +63,38 @@ func (interactor *MovieInteractor) GetRandomFromClips(userId string) (*OutputDat
 	return interactor.MovieOutputPort.ShowMovieInfo(movie)
 }
 
-func (interactor *MovieInteractor) GetMutualClip(filmarksIDs []string) (*OutputData, error) {
+func (interactor *MovieInteractor) GetMutualClip(filmarksIDs []string, cacheID int) (*OutputData, error) {
 	var allClipMovies map[int]int
-	allClipMovies = make(map[int]int)
-	for _, fid := range filmarksIDs {
-		clipMovies, _ := interactor.MovieRepository.FindByUserId(fid)
-		for _, mid := range clipMovies {
-			setDefault(allClipMovies, mid, 0)
-			allClipMovies[mid] += 1
+	if cacheID < 0 {
+		allClipMovies = make(map[int]int)
+		for _, fid := range filmarksIDs {
+			clipMovies, _ := interactor.MovieRepository.FindByUserId(fid)
+			for _, mid := range clipMovies {
+				setDefault(allClipMovies, mid, 0)
+				allClipMovies[mid] += 1
+			}
 		}
+
+		a := List{}
+		for k, v := range allClipMovies {
+			e := Entry{k, v}
+			a = append(a, e)
+		}
+		sort.Sort(a)
+		cacheID = interactor.MutualMovieCache.Store(a, 0)
+		movie, _ := interactor.MovieRepository.FindById(a[0].mid)
+		out, err := interactor.MovieOutputPort.ShowMovieInfo(movie)
+		out.CacheID = cacheID
+		return out, err
 	}
 
-	a := List{}
-	for k, v := range allClipMovies {
-		e := Entry{k, v}
-		a = append(a, e)
-	}
+	a, index, _ := interactor.MutualMovieCache.FindById(cacheID)
 
-	sort.Sort(a)
-	movie, _ := interactor.MovieRepository.FindById(a[0].mid)
-	return interactor.MovieOutputPort.ShowMovieInfo(movie)
+	movie, _ := interactor.MovieRepository.FindById(a[index].mid)
+	cacheID = interactor.MutualMovieCache.Store(a, index+1) //Updateの実装をする
+	out, err := interactor.MovieOutputPort.ShowMovieInfo(movie)
+	out.CacheID = cacheID
+	return out, err
 }
 
 func setDefault(m map[int]int, key, value int) {

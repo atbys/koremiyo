@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 
+	"github.com/atbys/koremiyo/interfaces/cache"
 	"github.com/atbys/koremiyo/interfaces/presenter"
 	"github.com/atbys/koremiyo/interfaces/scraper"
 	"github.com/atbys/koremiyo/usecase"
@@ -12,11 +13,14 @@ type MovieController struct {
 	Interactor usecase.MovieInteractor
 }
 
-func NewMovieController(s scraper.Scraper) *MovieController {
+func NewMovieController(s scraper.Scraper, c cache.Cache) *MovieController {
 	mctrl := &MovieController{
 		Interactor: usecase.MovieInteractor{
 			MovieRepository: &scraper.MovieRepository{
 				Scraper: s,
+			},
+			MutualMovieCache: &cache.MovieCache{
+				Cache: c,
 			},
 			MovieOutputPort: &presenter.HTTPPresenter{},
 		},
@@ -41,7 +45,7 @@ func (controller *MovieController) RandomClip(userId string) (int, *usecase.Outp
 	return http.StatusOK, content
 }
 
-func (controller *MovieController) MutualClip(userIds []string) (int, *usecase.OutputData) {
-	content, _ := controller.Interactor.GetMutualClip(userIds)
+func (controller *MovieController) MutualClip(userIds []string, cacheID int) (int, *usecase.OutputData) {
+	content, _ := controller.Interactor.GetMutualClip(userIds, cacheID)
 	return http.StatusOK, content
 }
