@@ -18,7 +18,7 @@ func (mrep *MovieRepository) FindById(id int) (*domain.Movie, error) {
 	doc, err := mrep.GetPage(targetURL)
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	movie := &domain.Movie{
 		Id:       id,
@@ -29,7 +29,7 @@ func (mrep *MovieRepository) FindById(id int) (*domain.Movie, error) {
 		Reviews:  GetMovieReviews(doc),
 	}
 
-	return movie, err
+	return movie, nil
 }
 
 func getMovieTitle(doc Document) string {
