@@ -14,33 +14,28 @@ type MovieInteractor struct {
 	MutualMovieCache MutualMovieCache
 }
 
-type MovieOutputPort interface {
-	ShowMovieInfo(*domain.Movie) (*OutputData, error)
-	ShowIndex(*domain.Movie) (*OutputData, error)
-}
-
 type OutputData struct {
 	CacheID int
-	Config  *OutputConfig
 	Movie   *domain.Movie
-	Content map[string]string
+	Msg     map[string]interface{}
 }
 
 type OutputConfig struct{}
 
 const allMovieNum = 85000
 
-func (interactor *MovieInteractor) GetRecommendation() (*OutputData, error) {
+func (interactor *MovieInteractor) GetRecommendation() (*OutputData, error) { //TODO
 	movie := &domain.Movie{
 		Title: "1917",
 	}
 	return interactor.MovieOutputPort.ShowIndex(movie)
 }
 
+// GetMovieInfo : 指定されたIDの映画を取得してくる
 func (interactor *MovieInteractor) GetMovieInfo(id int) (*OutputData, error) {
 	movie, err := interactor.MovieRepository.FindById(id)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	return interactor.MovieOutputPort.ShowMovieInfo(movie)
 }
@@ -50,51 +45,68 @@ func randInt(max int) int {
 	return rand.Intn(max)
 }
 
+//RandomNumberGenerator 指定された範囲内のランダムな数値を出力する
+type RandomNumberGenerator interface {
+	Intn(int) int
+}
+
+// RNG (RandomNumberGenerator) 指定された範囲内のランダムな数値を出力する
+var RNG RandomNumberGenerator = rand.New(rand.NewSource(time.Now().UnixNano()))
+
+// GetRandom : Filmarksに記録されている映画から適当に選出する
 func (interactor *MovieInteractor) GetRandom() (*OutputData, error) {
-	randId := randInt(allMovieNum)
-	movie, _ := interactor.MovieRepository.FindById(randId)
+	randID := RNG.Intn(allMovieNum)
+	movie, err := interactor.MovieRepository.FindById(randID)
+	if err != nil {
+		return nil, err
+	}
 	return interactor.MovieOutputPort.ShowMovieInfo(movie)
 }
 
-func (interactor *MovieInteractor) GetRandomFromClips(userId string) (*OutputData, error) {
-	movieIDs, _ := interactor.MovieRepository.FindByUserId(userId)
-	randId := movieIDs[randInt(len(movieIDs))]
-	movie, _ := interactor.MovieRepository.FindById(randId)
+// GetRandomFromClips : FilmarksユーザIDからClipした映画をとってきてランダムに選出
+func (interactor *MovieInteractor) GetRandomFromClips(userID string) (*OutputData, error) {
+	movieIDs, _ := interactor.MovieRepository.FindClipsByUserId(userID)
+	randID := movieIDs[RNG.Intn(len(movieIDs))]
+	movie, _ := interactor.MovieRepository.FindById(randID)
 	return interactor.MovieOutputPort.ShowMovieInfo(movie)
 }
 
 func (interactor *MovieInteractor) GetMutualClip(filmarksIDs []string, cacheID int) (*OutputData, error) {
-	var allClipMovies map[int]int
+	var allMutualClip map[int]int
 	if cacheID < 0 {
-		allClipMovies = make(map[int]int)
+		allMutualClip = make(map[int]int)
 		for _, fid := range filmarksIDs {
-			clipMovies, _ := interactor.MovieRepository.FindByUserId(fid)
+			clipMovies, _ := interactor.MovieRepository.FindClipsByUserId(fid)
 			for _, mid := range clipMovies {
-				setDefault(allClipMovies, mid, 0)
-				allClipMovies[mid] += 1
+				setDefault(allMutualClip, mid, 0)
+				allMutualClip[mid]++
 			}
 		}
-
-		a := List{}
-		for k, v := range allClipMovies {
+		mutualRank := List{}
+		for k, v := range allMutualClip {
 			e := Entry{k, v}
-			a = append(a, e)
+			mutualRank = append(mutualRank, e)
 		}
-		sort.Sort(a)
-		cacheID = interactor.MutualMovieCache.Store(a, 0)
-		movie, _ := interactor.MovieRepository.FindById(a[0].mid)
+		sort.Sort(mutualRank)
+		cacheID := interactor.MutualMovieCache.Store(mutualRank, 1)
+		movie, _ := interactor.MovieRepository.FindById(mutualRank[0].mid)
 		out, err := interactor.MovieOutputPort.ShowMovieInfo(movie)
 		out.CacheID = cacheID
 		return out, err
+	} else {
+		mutualRank, index, err := interactor.MutualMovieCache.FindById(cacheID)
+		if err != nil {
+			return nil, err
+		}
+		movie, err := interactor.MovieRepository.FindById(mutualRank[index].mid)
+		cacheID := interactor.MutualMovieCache.Store(mutualRank, index+1)
+		out, err := interactor.MovieOutputPort.ShowMovieInfo(movie)
+		out.CacheID = cacheID
+		if err != nil {
+			return nil, err
+		}
+		return out, nil
 	}
-
-	a, index, _ := interactor.MutualMovieCache.FindById(cacheID)
-
-	movie, _ := interactor.MovieRepository.FindById(a[index].mid)
-	cacheID = interactor.MutualMovieCache.Store(a, index+1) //Updateの実装をする
-	out, err := interactor.MovieOutputPort.ShowMovieInfo(movie)
-	out.CacheID = cacheID
-	return out, err
 }
 
 func setDefault(m map[int]int, key, value int) {
@@ -104,8 +116,8 @@ func setDefault(m map[int]int, key, value int) {
 }
 
 type Entry struct {
-	mid   int
-	value int
+	mid    int
+	counts int
 }
 type List []Entry
 
@@ -118,5 +130,8 @@ func (l List) Swap(i, j int) {
 }
 
 func (l List) Less(i, j int) bool {
-	return (l[i].value > l[j].value)
+	if l[i].counts == l[j].counts {
+		return (l[i].mid > l[j].mid)
+	}
+	return (l[i].counts > l[j].counts)
 }
