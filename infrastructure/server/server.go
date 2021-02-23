@@ -1,8 +1,6 @@
 package server
 
 import (
-	"os"
-
 	"github.com/atbys/koremiyo/infrastructure"
 	"github.com/atbys/koremiyo/interfaces/controller"
 	"github.com/gin-contrib/sessions"
@@ -24,9 +22,9 @@ func NewServer() *Server {
 }
 
 func (s *Server) Initialize() {
-	gopath := os.Getenv("GOPATH")
-	s.Engine.LoadHTMLGlob(gopath + "/src/github.com/atbys/koremiyo/infrastructure/resource/template/*")
-
+	//gopath := os.Getenv("GOPATH")
+	//s.Engine.LoadHTMLGlob(gopath + "/src/github.com/atbys/koremiyo/infrastructure/resource/template/*")
+	s.Engine.LoadHTMLGlob("./infrastructure/resource/template/*")
 	s.InitializeSession()
 	s.SetRouter()
 }

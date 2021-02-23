@@ -1,12 +1,9 @@
-FROM golang:latest as builder
+FROM golang:latest
 
-WORKDIR /src
+WORKDIR /go/src/
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -v -o app
+RUN go get -v
+RUN GO111MODULE=auto go build -o app -v
 
-FROM alpine
-
-COPY --from=builder /src/app /app
-
-CMD ["/app"]
+CMD ["/go/src/app"]
