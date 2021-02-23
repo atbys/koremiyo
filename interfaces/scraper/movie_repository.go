@@ -52,7 +52,7 @@ func GetMovieReviews(doc Document) []string {
 	return movie_reviews
 }
 
-func (mrep *MovieRepository) FindByUserId(userId string) ([]int, error) {
+func (mrep *MovieRepository) FindClipsByUserId(userId string) ([]int, error) {
 	page := 1
 	targetURL := baseURL + "/users/" + userId + "/clips" + "?page=" + strconv.Itoa(page)
 	doc, err := mrep.GetPage(targetURL)

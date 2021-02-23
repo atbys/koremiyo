@@ -10,37 +10,39 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func msgWriter(msg map[string]interface{}) (h gin.H) {
+	h = gin.H{}
+
+	for k, v := range msg {
+		if s, ok := v.(string); ok {
+			h[k] = s
+		} else if ss, ok := v.([]string); ok {
+			h[k] = ss
+		} else {
+			h[k] = v
+		}
+	}
+	return
+}
+
 func (s *Server) showIndex(ctrl *controller.MovieController) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		res_code, res_data := ctrl.Index()
-		ctx.HTML(res_code, "index.html", gin.H{ //res_dataを直接突っ込めないか
-			//レンダリング用の関数を作って，KeyとValueを取得するループで突っ込んでいこう
-			"title":     res_data.Content["page_title"],
-			"recommend": res_data.Content["movie_title"],
-		})
+		ctx.HTML(res_code, "index.html", msgWriter(res_data.Msg))
 	}
 }
 
 func (s *Server) showRandom(ctrl *controller.MovieController) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		res_code, res_data := ctrl.Random()
-		ctx.HTML(res_code, "movie.html", gin.H{
-			"title":       "kore",
-			"movie_title": res_data.Content["movie_title"],
-		})
+		ctx.HTML(res_code, "movie.html", msgWriter(res_data.Msg))
 	}
 }
 
 func (s *Server) showRandomFromClip(ctrl *controller.MovieController) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		res_code, res_data := ctrl.RandomClip("nekoneon") //XXX
-		ctx.HTML(res_code, "movie.html", gin.H{
-			"title":       "kore",
-			"movie_title": res_data.Content["movie_title"],
-			"movie_rate":  res_data.Content["movie_rate"],
-			"reviews":     res_data.Movie.Reviews,
-			"link":        res_data.Content["link"],
-		})
+		ctx.HTML(res_code, "movie.html", msgWriter(res_data.Msg))
 	}
 }
 
@@ -54,14 +56,7 @@ func (s *Server) showMutualClip(ctrl *controller.MovieController) gin.HandlerFun
 			println(id)
 		}
 		code, data := ctrl.MutualClip(ids, cache)
-		ctx.HTML(code, "movie.html", gin.H{
-			"title":       "kore",
-			"movie_title": data.Movie.Title,
-			"movie_rate":  data.Content["movie_rate"],
-			"reviews":     data.Movie.Reviews,
-			"link":        data.Content["link"],
-			"CacheID":     data.CacheID,
-		})
+		ctx.HTML(code, "movie.html", msgWriter(data.Msg))
 	}
 }
 

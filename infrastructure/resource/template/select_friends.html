@@ -1,7 +1,7 @@
 {{template "header.html" .}}
 <h1>一緒に見る友達を選択</h1>
 
-<form action="/with/random" method="POST">
+<form action="/with/mutual" method="POST">
     {{range .friends}}
     <h3><input type="checkbox" name="filmarks_id" value={{.FilmarksID}}>{{.ScreenName}}</h3>
     {{end}}

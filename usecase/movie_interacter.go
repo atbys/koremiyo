@@ -92,6 +92,7 @@ func (interactor *MovieInteractor) GetMutualClip(filmarksIDs []string, cacheID i
 		movie, _ := interactor.MovieRepository.FindById(mutualRank[0].mid)
 		out, err := interactor.MovieOutputPort.ShowMovieInfo(movie)
 		out.CacheID = cacheID
+		out.Msg["cache_id"] = cacheID
 		return out, err
 	} else {
 		mutualRank, index, err := interactor.MutualMovieCache.FindById(cacheID)
@@ -102,6 +103,7 @@ func (interactor *MovieInteractor) GetMutualClip(filmarksIDs []string, cacheID i
 		cacheID := interactor.MutualMovieCache.Store(mutualRank, index+1)
 		out, err := interactor.MovieOutputPort.ShowMovieInfo(movie)
 		out.CacheID = cacheID
+		out.Msg["cache_id"] = cacheID
 		if err != nil {
 			return nil, err
 		}

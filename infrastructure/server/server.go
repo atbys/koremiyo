@@ -43,7 +43,7 @@ func (s *Server) SetRouter() {
 	userController := controller.NewUserController(infrastructure.NewSqlHandler())
 
 	s.Engine.GET("/", s.showIndex(movieController))
-	s.Engine.GET("/random", s.showRandom(movieController))
+	s.Engine.POST("/random", s.showRandom(movieController))
 	s.Engine.GET("/clip", s.showRandomFromClip(movieController))
 	s.Engine.GET("/user/:id", s.showUser(userController))
 	s.Engine.GET("/login", s.showLoginForm(userController))
@@ -57,7 +57,7 @@ func (s *Server) SetRouter() {
 		withFriends := authGroup.Group("/with")
 		{
 			withFriends.GET("/choose", s.showFriends(userController))
-			withFriends.POST("/random", s.showMutualClip(movieController))
+			withFriends.POST("/mutual", s.showMutualClip(movieController))
 		}
 
 	}
