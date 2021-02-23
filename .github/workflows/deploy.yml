@@ -11,7 +11,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@master
 
-    # Setup gcloud CLI v0.2.0
+    # Setup gcloud CLI v0.2.0 aaa
     - uses: google-github-actions/setup-gcloud@v0.2.0
       with:
         service_account_email: ${{ secrets.GCP_SA_MAIL }}
