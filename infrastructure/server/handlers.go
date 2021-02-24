@@ -25,7 +25,7 @@ func (s *Server) showRandom(ctrl *controller.MovieController) gin.HandlerFunc {
 }
 
 func (s *Server) inputUserFid(ctrl *controller.MovieController) gin.HandlerFunc {
-	return func(ctx *gin.Context) { //aaaa
+	return func(ctx *gin.Context) {
 		ctx.HTML(http.StatusOK, "input_user.html", gin.H{})
 	}
 }
