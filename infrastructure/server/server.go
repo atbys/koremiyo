@@ -42,7 +42,8 @@ func (s *Server) SetRouter() {
 
 	s.Engine.GET("/", s.showIndex(movieController))
 	s.Engine.POST("/random", s.showRandom(movieController))
-	s.Engine.GET("/clip", s.showRandomFromClip(movieController))
+	s.Engine.GET("/clip/user", s.inputUserFid(movieController))
+	s.Engine.GET("/clip/random", s.showRandomFromClip(movieController))
 	s.Engine.GET("/user/:id", s.showUser(userController))
 	s.Engine.GET("/login", s.showLoginForm(userController))
 	s.Engine.POST("/login", s.Login(userController))

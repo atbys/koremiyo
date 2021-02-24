@@ -10,21 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func msgWriter(msg map[string]interface{}) (h gin.H) {
-	h = gin.H{}
-
-	for k, v := range msg {
-		if s, ok := v.(string); ok {
-			h[k] = s
-		} else if ss, ok := v.([]string); ok {
-			h[k] = ss
-		} else {
-			h[k] = v
-		}
-	}
-	return
-}
-
 func (s *Server) showIndex(ctrl *controller.MovieController) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		res_code, res_data := ctrl.Index()
@@ -39,10 +24,18 @@ func (s *Server) showRandom(ctrl *controller.MovieController) gin.HandlerFunc {
 	}
 }
 
+func (s *Server) inputUserFid(ctrl *controller.MovieController) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ctx.HTML(http.StatusOK, "input_user.html", gin.H{})
+	}
+}
+
 func (s *Server) showRandomFromClip(ctrl *controller.MovieController) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		res_code, res_data := ctrl.RandomClip("nekoneon") //XXX
-		ctx.HTML(res_code, "movie.html", msgWriter(res_data.Msg))
+		fid := ctx.Query("fid")
+		println(fid)
+		code, data := ctrl.RandomClip(fid)
+		ctx.HTML(code, "movie.html", msgWriter(data.Msg))
 	}
 }
 
@@ -115,4 +108,19 @@ func (s *Server) showFriends(ctrl *controller.UserController) gin.HandlerFunc {
 			"friends": users,
 		})
 	}
+}
+
+func msgWriter(msg map[string]interface{}) (h gin.H) {
+	h = gin.H{}
+
+	for k, v := range msg {
+		if s, ok := v.(string); ok {
+			h[k] = s
+		} else if ss, ok := v.([]string); ok {
+			h[k] = ss
+		} else {
+			h[k] = v
+		}
+	}
+	return
 }
