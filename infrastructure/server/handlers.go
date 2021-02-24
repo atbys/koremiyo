@@ -12,8 +12,8 @@ import (
 
 func (s *Server) showIndex(ctrl *controller.MovieController) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		res_code, res_data := ctrl.Index()
-		ctx.HTML(res_code, "index.html", msgWriter(res_data.Msg))
+		code, data := ctrl.Index()
+		ctx.HTML(code, "index.html", msgWriter(data.Msg))
 	}
 }
 
