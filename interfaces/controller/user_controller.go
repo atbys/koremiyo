@@ -55,6 +55,14 @@ func (controller *UserController) SelectFriend(id int) (int, []domain.User) {
 	return http.StatusOK, users
 }
 
+func (controller *UserController) SignUp(u domain.User) int {
+	_, err := controller.Interactor.Add(u)
+	if err != nil {
+		return http.StatusBadGateway
+	}
+	return http.StatusOK
+}
+
 func (controller *UserController) Login(fid string, password string, session usecase.UserSession) int {
 	_, err := controller.Interactor.Login(fid, password, session)
 	if err != nil {

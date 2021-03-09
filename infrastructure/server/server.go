@@ -48,6 +48,8 @@ func (s *Server) SetRouter() {
 	s.Engine.GET("/login", s.showLoginForm(userController))
 	s.Engine.POST("/login", s.Login(userController))
 	s.Engine.GET("logout", s.Logout(userController))
+	s.Engine.GET("/signup", s.showSignUpForm(userController))
+	s.Engine.POST("/signup", s.SignUp(userController))
 
 	authGroup := s.Engine.Group("/")
 	authGroup.Use(s.SessionCheck(userController))

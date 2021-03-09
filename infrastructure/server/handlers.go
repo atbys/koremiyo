@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/atbys/koremiyo/domain"
 	"github.com/atbys/koremiyo/interfaces/controller"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -25,7 +26,7 @@ func (s *Server) showRandom(ctrl *controller.MovieController) gin.HandlerFunc {
 }
 
 func (s *Server) inputUserFid(ctrl *controller.MovieController) gin.HandlerFunc {
-	return func(ctx *gin.Context) { //aaa
+	return func(ctx *gin.Context) {
 		ctx.HTML(http.StatusOK, "input_user.html", gin.H{})
 	}
 }
@@ -65,11 +66,33 @@ func (s *Server) showUser(ctrl *controller.UserController) gin.HandlerFunc {
 	}
 }
 
+func (s *Server) SignUp(ctrl *controller.UserController) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		fid := ctx.PostForm("fid")
+		scrName := ctx.PostForm("screen")
+		password := ctx.PostForm("pass")
+		u := domain.User{
+			FilmarksID: fid,
+			ScreenName: scrName,
+			Password:   password,
+		}
+
+		ctrl.SignUp(u)
+	}
+}
+
+func (s *Server) showSignUpForm(ctrl *controller.UserController) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ctx.HTML(http.StatusOK, "signup.html", gin.H{})
+	}
+}
+
 func (s *Server) showLoginForm(ctrl *controller.UserController) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		ctx.HTML(http.StatusOK, "login.html", gin.H{})
 	}
 }
+
 func (s *Server) Login(ctrl *controller.UserController) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		session := sessions.Default(ctx)

@@ -8,8 +8,7 @@ type UserRepository struct {
 
 func (repo *UserRepository) Store(u domain.User) (id int, err error) {
 	result, err := repo.Execute(
-		"INSERT INTO users (first_name, last_name) VALUES (?,?)", u.ScreenName, u.FilmarksID,
-	)
+		"INSERT INTO users (screen_name, filmarks_id, password) VALUES (?,?)", u.ScreenName, u.FilmarksID, u.Password)
 	if err != nil {
 		return
 	}
