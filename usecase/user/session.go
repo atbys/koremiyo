@@ -1,4 +1,4 @@
-package usecase
+package user
 
 type UserSession interface {
 	Get(interface{}) interface{}
