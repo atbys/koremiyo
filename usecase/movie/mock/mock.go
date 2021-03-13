@@ -7,7 +7,7 @@ package mock_movie
 import (
 	reflect "reflect"
 
-	domain "github.com/atbys/refactor/domain"
+	domain "github.com/atbys/koremiyo/domain"
 	gomock "github.com/golang/mock/gomock"
 )
 

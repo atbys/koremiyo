@@ -1,7 +1,7 @@
 package domain
 
 type Movie struct {
-	Id       int
+	ID       int
 	Title    string
 	Rate     float64
 	Abstruct string
