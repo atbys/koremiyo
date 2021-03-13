@@ -142,7 +142,7 @@ func (mc *MutualClips) Init(mi *MovieInteractor) {
 func (mc *MutualClips) Random() (mid int) { //TODO: だれがClipした映画なのかも返す
 	rn := RNG.Intn(len(mc.Clips))
 	index := 0
-	for key, _ := range mc.Clips {
+	for key := range mc.Clips {
 		if index == rn {
 			return key
 		} else {
