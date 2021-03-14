@@ -12,8 +12,9 @@ import (
 func (s *Server) SessionCheck(ctrl *controller.UserController) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		session := sessions.Default(ctx)
-		isLoggedin, userID := ctrl.SessionCheck(session)
-		if isLoggedin {
+		res := ctrl.SessionCheck(session)
+		if _, ok := res.Message["isLoggedin"]; ok {
+			userID := res.Message["user_id"]
 			log.Printf("[+] user_id is %d\n", userID.(int))
 			ctx.Set("user_id", userID)
 			ctx.Next()

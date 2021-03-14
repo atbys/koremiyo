@@ -82,13 +82,13 @@ func (ui *UserInteractor) Logout(session UserSession) error {
 	return nil
 }
 
-func (ui *UserInteractor) SessionCheck(session UserSession) (interface{}, error) {
+func (ui *UserInteractor) SessionCheck(session UserSession) (bool, interface{}) {
 	//TODO: セッション管理をもっとちゃんとする
 	uid := session.Get("user_id")
 	if uid == nil {
-		return nil, errors.New("not logged in") //TODO: チェックの結果をerrorで判断させるのはどうなのか？
-	} else { //		boolで返却したほうが良い？
-		return uid, nil
+		return false, nil
+	} else {
+		return true, uid
 	}
 }
 

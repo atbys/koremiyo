@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/atbys/koremiyo/domain"
 	"github.com/atbys/koremiyo/interfaces/controller"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -13,15 +12,15 @@ import (
 
 func (s *Server) showIndex(ctrl *controller.MovieController) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		code, data := ctrl.Index()
-		ctx.HTML(code, "index.html", msgWriter(data.Msg))
+		res := ctrl.Index()
+		ctx.HTML(res.Status, "index.html", msgWriter(res.Message))
 	}
 }
 
 func (s *Server) showRandom(ctrl *controller.MovieController) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		code, data := ctrl.Random()
-		ctx.HTML(code, "movie.html", msgWriter(data.Msg))
+		res := ctrl.Random()
+		ctx.HTML(res.Status, "movie.html", msgWriter(res.Message))
 	}
 }
 
@@ -35,8 +34,8 @@ func (s *Server) showRandomFromClip(ctrl *controller.MovieController) gin.Handle
 	return func(ctx *gin.Context) {
 		fid := ctx.Query("fid")
 		println(fid)
-		code, data := ctrl.RandomClip(fid)
-		ctx.HTML(code, "movie.html", msgWriter(data.Msg))
+		res := ctrl.RandomClip(fid)
+		ctx.HTML(res.Status, "movie.html", msgWriter(res.Message))
 	}
 }
 
@@ -49,20 +48,16 @@ func (s *Server) showMutualClip(ctrl *controller.MovieController) gin.HandlerFun
 		for _, id := range ids {
 			println(id)
 		}
-		code, data := ctrl.MutualClip(ids, cache)
-		ctx.HTML(code, "movie.html", msgWriter(data.Msg))
+		res := ctrl.RandomMutual(ids, cache)
+		ctx.HTML(res.Status, "movie.html", msgWriter(res.Message))
 	}
 }
 
 func (s *Server) showUser(ctrl *controller.UserController) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, _ := strconv.Atoi(ctx.Param("id"))
-		code, data := ctrl.Show(id)
-		ctx.HTML(code, "user_info.html", gin.H{
-			"title":     "user",
-			"user_name": data.User.ScreenName,
-			"user_fid":  data.User.FilmarksID,
-		})
+		res := ctrl.ShowInfo(id)
+		ctx.HTML(res.Status, "user_info.html", msgWriter(res.Message))
 	}
 }
 
@@ -71,13 +66,9 @@ func (s *Server) SignUp(ctrl *controller.UserController) gin.HandlerFunc {
 		fid := ctx.PostForm("fid")
 		scrName := ctx.PostForm("screen")
 		password := ctx.PostForm("pass")
-		u := domain.User{
-			FilmarksID: fid,
-			ScreenName: scrName,
-			Password:   password,
-		}
 
-		ctrl.SignUp(u)
+		res := ctrl.Create(scrName, fid, password)
+		ctx.HTML(res.Status, "user_info.html", msgWriter(res.Message))
 	}
 }
 
@@ -98,9 +89,9 @@ func (s *Server) Login(ctrl *controller.UserController) gin.HandlerFunc {
 		session := sessions.Default(ctx)
 		userID := ctx.PostForm("user_id")
 		password := ctx.PostForm("password")
-		code := ctrl.Login(userID, password, session)
-		if code == http.StatusBadGateway { //TODO
-			ctx.HTML(code, "error.html", gin.H{})
+		res := ctrl.Login(userID, password, session)
+		if res.Status != http.StatusOK {
+			ctx.HTML(res.Status, "error.html", gin.H{})
 		}
 		ctx.Redirect(http.StatusFound, "/loggedin")
 	}
@@ -109,8 +100,8 @@ func (s *Server) Login(ctrl *controller.UserController) gin.HandlerFunc {
 func (s *Server) Logout(ctrl *controller.UserController) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		session := sessions.Default(ctx)
-		code := ctrl.Logout(session)
-		ctx.HTML(code, "index.html", gin.H{})
+		res := ctrl.Logout(session)
+		ctx.HTML(res.Status, "index.html", gin.H{}) // TODO: ログアウトページに遷移させる？
 	}
 }
 
@@ -125,11 +116,9 @@ func (s *Server) showFriends(ctrl *controller.UserController) gin.HandlerFunc {
 		v, _ := ctx.Get("user_id")
 		userID := v.(int)
 		log.Printf("[+] Got user_id is %d\n", userID)
-		code, users := ctrl.SelectFriend(userID)
+		res := ctrl.ListFriends(userID)
 
-		ctx.HTML(code, "select_friends.html", gin.H{
-			"friends": users,
-		})
+		ctx.HTML(res.Status, "select_friends.html", msgWriter(res.Message)) //TODO: htmlをいい感じに書き換える
 	}
 }
 

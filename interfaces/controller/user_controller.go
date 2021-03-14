@@ -88,13 +88,11 @@ func (c *UserController) Logout(session user.UserSession) *Response {
 func (c *UserController) SessionCheck(session user.UserSession) *Response {
 	res := NewResponse()
 
-	uid, err := c.Interactor.SessionCheck(session)
-	if err != nil {
-		res.Error(err)
-		return res
+	isLoggedin, uid := c.Interactor.SessionCheck(session)
+	if isLoggedin {
+		res.Message["user_id"] = uid
+		res.Message["isLoggedin"] = true
 	}
-
-	res.Message["user_id"] = uid
 
 	return res
 }
