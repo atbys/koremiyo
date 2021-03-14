@@ -6,7 +6,7 @@ type UserRepository struct {
 	SqlHandler
 }
 
-func (repo *UserRepository) Store(u domain.User) (id int, err error) {
+func (repo *UserRepository) Store(u *domain.User) (id int, err error) {
 	result, err := repo.Execute(
 		"INSERT INTO users (screen_name, filmarks_id, password) VALUES (?,?,?)", u.ScreenName, u.FilmarksID, u.Password)
 	if err != nil {
@@ -20,7 +20,7 @@ func (repo *UserRepository) Store(u domain.User) (id int, err error) {
 	return
 }
 
-func (repo *UserRepository) FindById(identifier int) (user domain.User, err error) {
+func (repo *UserRepository) FindById(identifier int) (user *domain.User, err error) {
 	row, err := repo.Query("SELECT id, screen_name, filmarks_id, password FROM users WHERE id = ?", identifier)
 	defer row.Close()
 	if err != nil {
@@ -59,7 +59,7 @@ func (repo *UserRepository) ListFriends(id int) ([]int, error) {
 	return ids, nil
 }
 
-func (repo *UserRepository) FindByFid(fid string) (user domain.User, err error) {
+func (repo *UserRepository) FindByFid(fid string) (user *domain.User, err error) {
 	row, err := repo.Query("SELECT id, screen_name, filmarks_id, password FROM users WHERE filmarks_id = ?", fid)
 	defer row.Close()
 	if err != nil {
@@ -80,7 +80,7 @@ func (repo *UserRepository) FindByFid(fid string) (user domain.User, err error) 
 	return
 }
 
-func (repo *UserRepository) FindAll() (users domain.Users, err error) {
+func (repo *UserRepository) FindAll() (users []*domain.User, err error) {
 	rows, err := repo.Query("SELECT id, screen_name, filmarks_id FROM users")
 	defer rows.Close()
 	if err != nil {
@@ -93,7 +93,7 @@ func (repo *UserRepository) FindAll() (users domain.Users, err error) {
 		if err := rows.Scan(&id, &screenName, &filmarksId); err != nil {
 			continue
 		}
-		user := domain.User{
+		user := &domain.User{
 			ID:         id,
 			ScreenName: screenName,
 			FilmarksID: filmarksId,
