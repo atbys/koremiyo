@@ -1,88 +1,100 @@
 package controller
 
 import (
-	"net/http"
-
-	"github.com/atbys/koremiyo/domain"
 	"github.com/atbys/koremiyo/interfaces/database"
-	"github.com/atbys/koremiyo/interfaces/presenter"
-	"github.com/atbys/koremiyo/usecase"
+	"github.com/atbys/koremiyo/usecase/user"
 )
 
 type UserController struct {
-	Interactor usecase.UserInteractor
+	Interactor user.UserInteractor
 }
 
 func NewUserController(sqlHandler database.SqlHandler) *UserController {
 	return &UserController{
-		Interactor: usecase.UserInteractor{
-			UserRepository: &database.UserRepository{
+		Interactor: user.UserInteractor{
+			Repository: &database.UserRepository{
 				SqlHandler: sqlHandler,
 			},
-			UserOutputPort: &presenter.HTTPPresenter{},
 		},
 	}
 }
 
-func (controller *UserController) Create(u domain.User) (int, usecase.OutputUserData) {
-	content, err := controller.Interactor.Add(u)
+func (c *UserController) Create(screenName, filmarksID, password string) *Response {
+	res := NewResponse()
+
+	u, err := c.Interactor.Add(screenName, filmarksID, password)
 	if err != nil {
-		return http.StatusBadGateway, usecase.OutputUserData{}
+		res.Error(err)
+		return res
 	}
-	return http.StatusOK, content
+
+	res.EmbedUserInfo(u)
+
+	return res
 }
 
-func (controller *UserController) Index() {
-	_, err := controller.Interactor.Users()
+func (c *UserController) ShowInfo(id int) *Response {
+	res := NewResponse()
+
+	u, err := c.Interactor.GetUser(id)
 	if err != nil {
-		return
+		res.Error(err)
+		return res
 	}
+
+	res.EmbedUserInfo(u)
+
+	return res
 }
 
-func (controller *UserController) Show(id int) (int, usecase.OutputUserData) {
-	content, err := controller.Interactor.UserById(id)
+func (c *UserController) ListFriends(id int) *Response {
+	res := NewResponse()
+
+	friends, err := c.Interactor.GetFriends(id)
 	if err != nil {
-		return http.StatusBadGateway, usecase.OutputUserData{}
+		res.Error(err)
+		return res
 	}
-	return http.StatusOK, content
+
+	res.EmbedUsersInfo(friends)
+
+	return res
 }
 
-func (controller *UserController) SelectFriend(id int) (int, []domain.User) {
-	users, err := controller.Interactor.GetFriends(id)
+func (c *UserController) Login(fid, password string, session user.UserSession) *Response {
+	res := NewResponse()
+
+	err := c.Interactor.Login(fid, password, session)
 	if err != nil {
-		return http.StatusBadGateway, nil
+		res.Error(err)
+		return res
 	}
-	return http.StatusOK, users
+
+	return res
 }
 
-func (controller *UserController) SignUp(u domain.User) int {
-	_, err := controller.Interactor.Add(u)
+func (c *UserController) Logout(session user.UserSession) *Response {
+	res := NewResponse()
+
+	err := c.Interactor.Logout(session)
 	if err != nil {
-		return http.StatusBadGateway
+		res.Error(err)
+		return res
 	}
-	return http.StatusOK
+
+	return res
 }
 
-func (controller *UserController) Login(fid string, password string, session usecase.UserSession) int {
-	_, err := controller.Interactor.Login(fid, password, session)
-	if err != nil {
-		return http.StatusBadGateway
-	}
-	return http.StatusOK
-}
+func (c *UserController) SessionCheck(session user.UserSession) *Response {
+	res := NewResponse()
 
-func (controller *UserController) Logout(session usecase.UserSession) int {
-	err := controller.Interactor.Logout(session)
+	uid, err := c.Interactor.SessionCheck(session)
 	if err != nil {
-		return http.StatusBadGateway
+		res.Error(err)
+		return res
 	}
-	return http.StatusOK
-}
 
-func (controller *UserController) SessionCheck(session usecase.UserSession) (bool, interface{}) {
-	userID, err := controller.Interactor.SessionCheck(session)
-	if err != nil {
-		return false, nil
-	}
-	return true, userID
+	res.Message["user_id"] = uid
+
+	return res
 }

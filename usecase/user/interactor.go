@@ -86,8 +86,8 @@ func (ui *UserInteractor) SessionCheck(session UserSession) (interface{}, error)
 	//TODO: セッション管理をもっとちゃんとする
 	uid := session.Get("user_id")
 	if uid == nil {
-		return nil, errors.New("not logged in")
-	} else {
+		return nil, errors.New("not logged in") //TODO: チェックの結果をerrorで判断させるのはどうなのか？
+	} else { //		boolで返却したほうが良い？
 		return uid, nil
 	}
 }

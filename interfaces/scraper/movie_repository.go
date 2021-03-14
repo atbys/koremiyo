@@ -13,7 +13,7 @@ type MovieRepository struct {
 
 const baseURL = "https://filmarks.com"
 
-func (mrep *MovieRepository) FindById(id int) (*domain.Movie, error) {
+func (mrep *MovieRepository) Find(id int) (*domain.Movie, error) {
 	targetURL := baseURL + "/movies/" + strconv.Itoa(id) + "/no_spoiler"
 	doc, err := mrep.GetPage(targetURL)
 
@@ -21,7 +21,7 @@ func (mrep *MovieRepository) FindById(id int) (*domain.Movie, error) {
 		return nil, err
 	}
 	movie := &domain.Movie{
-		Id:       id,
+		ID:       id,
 		Title:    getMovieTitle(doc),
 		Rate:     getMovieRate(doc),
 		Abstruct: "TODO",
@@ -52,7 +52,7 @@ func GetMovieReviews(doc Document) []string {
 	return movie_reviews
 }
 
-func (mrep *MovieRepository) FindClipsByUserId(userId string) ([]int, error) {
+func (mrep *MovieRepository) FindClips(userId string) ([]int, error) {
 	page := 1
 	targetURL := baseURL + "/users/" + userId + "/clips" + "?page=" + strconv.Itoa(page)
 	doc, err := mrep.GetPage(targetURL)

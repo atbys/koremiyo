@@ -1,9 +1,6 @@
 package controller
 
 import (
-	"net/http"
-
-	"github.com/atbys/koremiyo/domain"
 	"github.com/atbys/koremiyo/interfaces/cache"
 	"github.com/atbys/koremiyo/interfaces/scraper"
 	"github.com/atbys/koremiyo/usecase/movie"
@@ -19,18 +16,13 @@ func NewMovieController(s scraper.Scraper, c cache.Cache) *MovieController {
 			Repository: &scraper.MovieRepository{
 				Scraper: s,
 			},
-			MovieCache: &cache.MovieCache{
+			Cache: &cache.MovieCache{
 				Cache: c,
 			},
 		},
 	}
 
 	return mctrl
-}
-
-type Response struct {
-	Status  int
-	Message map[string]interface{}
 }
 
 func (c *MovieController) Random() *Response {
@@ -97,26 +89,4 @@ func (c *MovieController) Index() *Response {
 	res.Message["recommend"] = "GATTACA"
 
 	return res
-}
-
-func NewResponse() *Response {
-	res := &Response{
-		Status:  http.StatusOK,
-		Message: make(map[string]interface{}),
-	}
-
-	return res
-}
-
-func (res *Response) Error(err error) {
-	res.Status = http.StatusBadRequest
-	res.Message["error"] = err.Error()
-}
-
-func (res *Response) EmbedMovieInfo(m *domain.Movie) {
-	res.Message["movie_title"] = m.Title
-	res.Message["movie_link"] = m.FLink
-	res.Message["movie_rate"] = m.Rate //TODO: N.Nの形式に固定したいので文字列にする
-	res.Message["movie_abstruct"] = m.Abstruct
-	res.Message["movie_revies"] = m.Reviews
 }

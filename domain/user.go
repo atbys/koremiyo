@@ -6,5 +6,3 @@ type User struct {
 	ScreenName string
 	FilmarksID string
 }
-
-type Users []User
