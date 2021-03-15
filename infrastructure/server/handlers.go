@@ -128,7 +128,7 @@ func (s *Server) inputFriend(ctrl *controller.UserController) gin.HandlerFunc {
 	}
 }
 
-func (s *Server) FollowFriend(ctrl *controller.UserController) gin.HandlerFunc {
+func (s *Server) FollowFriend(ctrl *controller.UserController) gin.HandlerFunc { //TODO: レコードがかぶるのを防ぐ
 	return func(ctx *gin.Context) {
 		v, _ := ctx.Get("user_id")
 		uid := v.(int)
