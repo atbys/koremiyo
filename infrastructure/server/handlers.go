@@ -55,7 +55,7 @@ func (s *Server) showMutualClip(ctrl *controller.MovieController) gin.HandlerFun
 
 func (s *Server) showUser(ctrl *controller.UserController) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		id, _ := strconv.Atoi(ctx.Param("id"))
+		id := ctx.Param("id")
 		res := ctrl.ShowInfo(id)
 		ctx.HTML(res.Status, "user_info.html", msgWriter(res.Message))
 	}
@@ -119,6 +119,27 @@ func (s *Server) showFriends(ctrl *controller.UserController) gin.HandlerFunc {
 		res := ctrl.ListFriends(userID)
 
 		ctx.HTML(res.Status, "select_friends.html", msgWriter(res.Message)) //TODO: htmlをいい感じに書き換える
+	}
+}
+
+func (s *Server) inputFriend(ctrl *controller.UserController) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ctx.HTML(http.StatusOK, "follow_friend.html", gin.H{})
+	}
+}
+
+func (s *Server) FollowFriend(ctrl *controller.UserController) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		v, _ := ctx.Get("user_id")
+		uid := v.(int)
+		friendID := ctx.PostForm("friend_id")
+		res := ctrl.FollowFriend(uid, friendID)
+		if res.Status != http.StatusOK {
+			ctx.HTML(res.Status, "error.html", msgWriter(res.Message))
+			return
+		}
+		ctx.HTML(res.Status, "index.html", gin.H{})
+
 	}
 }
 

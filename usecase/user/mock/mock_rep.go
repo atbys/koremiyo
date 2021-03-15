@@ -34,6 +34,20 @@ func (m *MockUserRepository) EXPECT() *MockUserRepositoryMockRecorder {
 	return m.recorder
 }
 
+// AddFriend mocks base method.
+func (m *MockUserRepository) AddFriend(arg0, arg1 int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddFriend", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddFriend indicates an expected call of AddFriend.
+func (mr *MockUserRepositoryMockRecorder) AddFriend(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddFriend", reflect.TypeOf((*MockUserRepository)(nil).AddFriend), arg0, arg1)
+}
+
 // FindByFid mocks base method.
 func (m *MockUserRepository) FindByFid(arg0 string) (*domain.User, error) {
 	m.ctrl.T.Helper()

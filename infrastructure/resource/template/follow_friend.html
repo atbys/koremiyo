@@ -1,0 +1,9 @@
+{{template "header.html" .}}
+
+<h1>友達を追加</h1>
+
+<form action="/with/follow" method="post">
+    <input type="text" name="friend_id" id="friend_id">
+    <input type="submit" value="フォロー">
+</form>
+{{template "footer.html"}}

@@ -33,7 +33,7 @@ func (c *UserController) Create(screenName, filmarksID, password string) *Respon
 	return res
 }
 
-func (c *UserController) ShowInfo(id int) *Response {
+func (c *UserController) ShowInfo(id string) *Response {
 	res := NewResponse()
 
 	u, err := c.Interactor.GetUser(id)
@@ -57,6 +57,18 @@ func (c *UserController) ListFriends(id int) *Response {
 	}
 
 	res.EmbedUsersInfo(friends)
+
+	return res
+}
+
+func (c *UserController) FollowFriend(userID int, friendID string) *Response {
+	res := NewResponse()
+
+	err := c.Interactor.FollowFriend(userID, friendID)
+	if err != nil {
+		res.Error(err)
+		return res
+	}
 
 	return res
 }

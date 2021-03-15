@@ -7,4 +7,5 @@ type UserRepository interface {
 	FindById(int) (*domain.User, error)
 	FindByFid(string) (*domain.User, error)
 	ListFriends(int) ([]int, error)
+	AddFriend(int, int) error
 }

@@ -31,8 +31,8 @@ func (ui *UserInteractor) Add(screenName, filmarksID, password string) (*domain.
 	return u, nil
 }
 
-func (ui *UserInteractor) GetUser(id int) (*domain.User, error) {
-	u, err := ui.Repository.FindById(id)
+func (ui *UserInteractor) GetUser(fid string) (*domain.User, error) {
+	u, err := ui.Repository.FindByFid(fid)
 	if err != nil {
 		return nil, err
 	}
@@ -56,6 +56,22 @@ func (ui *UserInteractor) GetFriends(id int) ([]*domain.User, error) {
 	}
 
 	return friends, nil
+}
+
+func (ui *UserInteractor) FollowFriend(uid int, friendFID string) error {
+	friend, err := ui.GetUser(friendFID) // Followする相手の確認
+	if err != nil {
+		return err
+	}
+
+	friendID := friend.ID
+	println("friend id: ", friendID)
+	err = ui.Repository.AddFriend(uid, friendID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (ui *UserInteractor) Login(fid, password string, session UserSession) error {

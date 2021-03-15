@@ -62,7 +62,17 @@ func (repo *UserRepository) ListFriends(id int) ([]int, error) {
 	return ids, nil
 }
 
+func (repo *UserRepository) AddFriend(userID, friendID int) error {
+	_, err := repo.Execute("INSERT INTO friends (user_id, friend_id) VALUES (?,?)", userID, friendID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (repo *UserRepository) FindByFid(fid string) (user *domain.User, err error) {
+	println(fid)
 	row, err := repo.Query("SELECT id, screen_name, filmarks_id, password FROM users WHERE filmarks_id = ?", fid)
 	defer row.Close()
 	if err != nil {
@@ -74,6 +84,7 @@ func (repo *UserRepository) FindByFid(fid string) (user *domain.User, err error)
 	var password string
 	row.Next()
 	if err = row.Scan(&id, &screenName, &filmarksId, &password); err != nil {
+		println("hey")
 		return
 	}
 	user = &domain.User{
