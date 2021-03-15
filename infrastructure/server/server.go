@@ -58,7 +58,8 @@ func (s *Server) SetRouter() {
 		withFriends := authGroup.Group("/with")
 		{
 			withFriends.GET("/choose", s.showFriends(userController))
-			withFriends.POST("/mutual", s.showMutualClip(movieController))
+			withFriends.POST("/random", s.showMutualClip(movieController))
+			withFriends.POST("/majority", s.showMutualClip(movieController))
 		}
 
 	}

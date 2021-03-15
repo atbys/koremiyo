@@ -40,14 +40,6 @@ func (res *Response) EmbedUserInfo(u *domain.User) {
 }
 
 func (res *Response) EmbedUsersInfo(users []*domain.User) {
-	screenNames := []string{}
-	filmarksIDs := []string{}
 
-	for _, u := range users {
-		screenNames = append(screenNames, u.ScreenName)
-		filmarksIDs = append(filmarksIDs, u.FilmarksID)
-	}
-
-	res.Message["users_screen_name"] = screenNames
-	res.Message["users_filmarks_id"] = filmarksIDs
+	res.Message["friends"] = users
 }
