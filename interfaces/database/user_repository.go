@@ -34,10 +34,13 @@ func (repo *UserRepository) FindById(identifier int) (user *domain.User, err err
 	if err = row.Scan(&id, &screenName, &filmarksId, &password); err != nil {
 		return
 	}
-	user.ID = id
-	user.ScreenName = screenName
-	user.FilmarksID = filmarksId
-	user.Password = password
+
+	user = &domain.User{
+		ID:         id,
+		ScreenName: screenName,
+		FilmarksID: filmarksId,
+		Password:   password,
+	}
 	return
 }
 
@@ -73,10 +76,13 @@ func (repo *UserRepository) FindByFid(fid string) (user *domain.User, err error)
 	if err = row.Scan(&id, &screenName, &filmarksId, &password); err != nil {
 		return
 	}
-	user.ID = id
-	user.ScreenName = screenName
-	user.FilmarksID = filmarksId
-	user.Password = password
+	user = &domain.User{
+		ID:         id,
+		ScreenName: screenName,
+		FilmarksID: filmarksId,
+		Password:   password,
+	}
+
 	return
 }
 
